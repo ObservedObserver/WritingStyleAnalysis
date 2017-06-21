@@ -61,11 +61,27 @@ for line in story:
     i += 1
 
 #Prince Vasili
-Prince = TimeLine(story, "Prince Vasili")
-print(Prince.time_density())
-print(len(Prince.time_density()))
+#Prince = TimeLine(story, "Prince Vasili")
+#print(Prince.time_density())
+#print(len(Prince.time_density()))
 # print(Prince.density())
-
+print(nameSet)
 print(grades("Anna Mikhdylovna","Prince Vasili"))
+gradeList = {}
 
+for (key1,val1) in nameSet.items():
+    gradeList[key1] = 0
+    for (key2,val2) in nameSet.items():
+        gradeList[key1] += grades(key1,key2)
+
+
+
+orderList = sorted(gradeList, key=lambda x:x[1])
+#print(orderList)
+i = 0
+for key in orderList:
+    print(orderList[key])
+    i += 1
+    if i >= 20:
+        break
 article.close()
