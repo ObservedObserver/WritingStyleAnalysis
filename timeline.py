@@ -1,19 +1,42 @@
 import re
-import math
-class TimeLine():
-    story = ""
-    pattern = None
+import math, json, time
+#Book = Novel(novel)
+#novel is the location of your novel, example: /home/books/war_peace.txt
+class Novel():
+    story = []
+    nameSet = {}
+    relationalMatrix = []
+    stat = {}
 
-    def __init__(self, story, pattern):
-        self.story=story
-        patterns = pattern.split(' ')
+    def __init__(self, article):
+        self.article = open(article, "r")
+        self.story = self.article.readlines()
+
+    #To close the novel file.
+    def close_novel(self):
+        return self.article.close()
+
+    #Return basic statics of the novel.
+    def statics(self):
+        if len(self.stat) != 0:
+            return self.stat
+        else:
+            self.stat = {"wordCount": 0, "characterCount": 0, "punct": 0}
+            for line in self.story:
+                self.stat["wordCount"] += len(re.findall(r'[A-Za-z0-9]+',line))
+                self.stat["characterCount"] += len(line)
+                self.stat["punct"] += len(re.findall(r'[,.;:""!]',line))
+            return self.stat
+
+    #Return an apperance distribution of a name.
+    def time_density(self, name):
+        pattern = []
+        patterns = name.split(' ')
         if len(patterns) == 1:
-            self.pattern = re.compile(pattern)
+            pattern = re.compile(name)
         elif len(patterns) == 2:
             tmp = patterns[0]+'|'+patterns[1]+'|'+(patterns[0]+' '+patterns[1])
-            self.pattern = re.compile(tmp)
-
-    def time_density(self):
+            pattern = re.compile(tmp)
         personTD = []
         i = 0
         pos = 0
@@ -21,67 +44,81 @@ class TimeLine():
             #Compression
             if i % 100 == 0:
                 personTD.append(0)
-            result = re.findall(self.pattern, line)
+            result = re.findall(pattern, line)
             personTD[i//100] += len(result)
             i += 1
         return personTD
-    # def density(self):
-    #     result = re.findall(self.pattern, "Prince Vasili \n Prince Vasili Prince Vasili")
-    #     return len(result)
-def grades(name1, name2):
-    Name1 = TimeLine(story, name1).time_density()
-    Name2 = TimeLine(story, name2).time_density()
-    Name1Len = 0
-    Name2Len = 0
-    #Ans = Name1.time_density()
-    Ans = 0
-    i = 0
-    Len = len(Name1)
-    while i < Len:
-        Ans += Name1[i]*Name2[i]
-        Name1Len += (Name1[i]*Name1[i])
-        Name2Len += (Name2[i]*Name2[i])
-        i += 1
-    return Ans/(math.sqrt(Name1Len)*math.sqrt(Name2Len))
-article = open("war_peace.txt","r")
-story = article.readlines()
-nameSet = {}
-namePattern = re.compile(r'[A-Z][a-z]+ [A-Z][a-z]+')
-timeDensity = []
-i = 0
-for line in story:
-    timeDensity.append(0)
-    result = namePattern.findall(line)
-    for name in result:
-        if nameSet.__contains__(name):
-            nameSet[name]+=1
+
+    #Return a list of cahracters in the novel.
+    def characters(self):
+        if len(self.nameSet) != 0:
+            return self.nameSet
         else:
-            nameSet[name]=1
-    timeDensity[i] += len(result)
-    i += 1
+            namePattern = re.compile(r'[A-Z][a-z]+ [A-Z][a-z]+')
+            timeDensity = []
+            i = 0
+            #Count apperance of names in the story:
+            for line in self.story:
+                timeDensity.append(0)
+                result = namePattern.findall(line)
+                for name in result:
+                    if self.nameSet.__contains__(name):
+                        self.nameSet[name]+=1
+                    else:
+                        self.nameSet[name]=1
+                timeDensity[i] += len(result)
+                i += 1
+            #Get a delete list to delete those names with low frenquency:
+            delList = []
+            for name in self.nameSet:
+                if self.nameSet[name] < 10:
+                    delList.append(name)
+                elif re.match(r'(The [A-Z][a-z]+)|(.*God)', name) is not None:
+                    delList.append(name)
+            #Delete the names:
+            for name in delList:
+                self.nameSet.pop(name)
 
-#Prince Vasili
-#Prince = TimeLine(story, "Prince Vasili")
-#print(Prince.time_density())
-#print(len(Prince.time_density()))
-# print(Prince.density())
-print(nameSet)
-print(grades("Anna Mikhdylovna","Prince Vasili"))
-gradeList = {}
+            return self.nameSet
 
-for (key1,val1) in nameSet.items():
-    gradeList[key1] = 0
-    for (key2,val2) in nameSet.items():
-        gradeList[key1] += grades(key1,key2)
+    #A grading function used to calcute the relationship between two name.
+    def grades(self, name1, name2):
+        Name1 = self.time_density(name1)
+        Name2 = self.time_density(name2)
+        Name1Len = 0
+        Name2Len = 0
+        #Ans = Name1.time_density()
+        Ans = 0
+        i = 0
+        Len = len(Name1)
+        while i < Len:
+            Ans += Name1[i]*Name2[i]
+            Name1Len += (Name1[i]*Name1[i])
+            Name2Len += (Name2[i]*Name2[i])
+            i += 1
+        return Ans/(math.sqrt(Name1Len)*math.sqrt(Name2Len))
+        
+    #Return a relationship matrix contains the grades between different pair of name.
+    def relational_matrix(self):
+        if len(self.nameSet) == 0:
+            self.characters()
+        i = 0
+        for (key1,val1) in self.nameSet.items():
+            #gradeList[key1] = 0
+            #time cost per cycle:0.48s
+            for (key2,val2) in self.nameSet.items():
+                self.relationalMatrix.append({})
+                self.relationalMatrix[i]["name1"] = key1
+                self.relationalMatrix[i]["name2"] = key2
+                self.relationalMatrix[i]["grade"] = self.grades(key1, key2)
+                i += 1
+                #gradeList[key1] += grades(key1,key2)
+        return self.relationalMatrix
 
-
-
-orderList = sorted(gradeList, key=lambda x:x[1])
-#print(orderList)
-i = 0
-for key in orderList:
-    print(orderList[key])
-    i += 1
-    if i >= 20:
-        break
-article.close()
+#Examples:
+# war_peace = Novel("war_peace.txt")
+# print(war_peace.time_density("Prince Vasili"))
+# print(war_peace.characters())
+# print(war_peace.statics())
+# print(war_peace.relational_matrix())
+# print(war_peace.close_novel())
