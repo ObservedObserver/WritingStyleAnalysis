@@ -7,7 +7,7 @@ class Novel():
     nameSet = {}
     relationalMatrix = []
     stat = {}
-
+    TF = {}
     def __init__(self, article):
         self.article = open(article, "r")
         self.story = self.article.readlines()
@@ -27,6 +27,23 @@ class Novel():
                 self.stat["characterCount"] += len(line)
                 self.stat["punct"] += len(re.findall(r'[,.;:""!]',line))
             return self.stat
+
+    #Return the TF dictionary of the novel.
+    def term_frenquency(self):
+        for line in self.story:
+            words = re.findall(r'[A-Za-z]+',line)
+            for word in words:
+                if self.TF.__contains__(word):
+                    self.TF[word] += 1
+                else:
+                    self.TF[word] = 1
+        delList = []
+        for word in self.TF:
+            if self.TF[word] < 10:
+                delList.append(word)
+        for word in delList:
+            self.TF.pop(word)
+        return self.TF
 
     #Return an apperance distribution of a name.
     def time_density(self, name):
@@ -97,7 +114,7 @@ class Novel():
             Name2Len += (Name2[i]*Name2[i])
             i += 1
         return Ans/(math.sqrt(Name1Len)*math.sqrt(Name2Len))
-        
+
     #Return a relationship matrix contains the grades between different pair of name.
     def relational_matrix(self):
         if len(self.nameSet) == 0:
@@ -117,6 +134,7 @@ class Novel():
 
 #Examples:
 # war_peace = Novel("war_peace.txt")
+# print(len(war_peace.term_frenquency()))
 # print(war_peace.time_density("Prince Vasili"))
 # print(war_peace.characters())
 # print(war_peace.statics())
