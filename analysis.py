@@ -68,8 +68,14 @@ def tf_idf(novelList):
 #             output.write(bookList[book_id]+"\n")
 #     book_id += 1
 
-output = open("war_peace_grades.json","w+")
+# output = open("war_peace_grades.json","w+")
+# book = Novels.Novel("war_peace.txt")
+# rm = book.relational_matrix()
+# output.write(json.dumps(rm))
+# output.close()
+
+output = open("war_peace_term_frequency.json","w")
 book = Novels.Novel("war_peace.txt")
-rm = book.relational_matrix()
-output.write(json.dumps(rm))
+tf = book.term_frenquency()
+output.write(json.dumps(tf).replace(", ",",\n"))
 output.close()
