@@ -1,24 +1,18 @@
-# SNA-in-novel
+# Writing Style Analysis
 
-> import Novels<br>
-> book = Novels.Novel("war_peace.txt")<br>
-> book.term_frequency()<br>
-> book.relational_matrix()<br>
-> book.time_density("Prince Valisi")<br>
-> book.grades("Prince Valisi","Princess Anna")<br>
-><br>
-> import Analysis<br>
-> tf-idf(["war_peace.txt","flatland.txt","the_old_man_and_the_sea.txt"])<br>
+Novels.py provides a class Novel with many useful methods.(including the SNA in novels)
+Analysis.py mainly provide method to calculate the td-idf of words in each novel.
+
 
 ```
-import Novels<br>
-book = Novels.Novel("war_peace.txt")<br>
-book.term_frequency()<br>
-book.time_density("Prince Valisi")<br>
-book.grades("Prince Valisi","Princess Anna")<br>
-<br>
-import Analysis<br>
-tf-idf(["war_peace.txt","flatland.txt","the_old_man_and_the_sea.txt"])<br>
+import Novels
+book = Novels.Novel("war_peace.txt")
+book.term_frequency()
+book.time_density("Prince Valisi")
+book.grades("Prince Valisi","Princess Anna")
+
+import Analysis
+tf-idf(["war_peace.txt","flatland.txt","the_old_man_and_the_sea.txt"])
 ```
 
 ![id](http://imglf2.nosdn.127.net/img/UnhEMnlSbXBDeGdWcnNZNm9lNjYzaVFlVXcvRmNMdHc3NHVJb0MwL1diRjZrb3RMMXdBbXlRPT0.png "tf-idf of war and peace")
