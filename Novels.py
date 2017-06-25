@@ -3,15 +3,18 @@ import math, json, time
 #Book = Novel(novel)
 #novel is the location of your novel, example: /home/books/war_peace.txt
 class Novel():
-    story = []
-    nameSet = {}
-    relationalMatrix = []
-    stat = {}
-    TF = {}
+    # story = []
+    # nameSet = {}
+    # relationalMatrix = []
+    # stat = {}
+    # tf = {}
     def __init__(self, article):
         self.article = open(article, "r")
         self.story = self.article.readlines()
-
+        self.nameSet = {}
+        self.relationalMatrix = []
+        self.stat = {}
+        self.tf = {}
     #To close the novel file.
     def close_novel(self):
         return self.article.close()
@@ -28,22 +31,28 @@ class Novel():
                 self.stat["punct"] += len(re.findall(r'[,.;:""!]',line))
             return self.stat
 
-    #Return the TF dictionary of the novel.
+    #Return the tf dictionary of the novel.
     def term_frenquency(self):
-        for line in self.story:
-            words = re.findall(r'[A-Za-z]+',line)
-            for word in words:
-                if self.TF.__contains__(word):
-                    self.TF[word] += 1
-                else:
-                    self.TF[word] = 1
-        delList = []
-        for word in self.TF:
-            if self.TF[word] < 10:
-                delList.append(word)
-        for word in delList:
-            self.TF.pop(word)
-        return self.TF
+        if len(self.tf) != 0:
+            return self.tf
+        else:
+            for line in self.story:
+                words = re.findall(r'[A-Za-z]+',line)
+                for word in words:
+                    if self.tf.__contains__(word):
+                        self.tf[word] += 1
+                    else:
+                        self.tf[word] = 1
+            delList = []
+            print(len(self.tf))
+            Total = self.statics()["wordCount"]
+            for word in self.tf:
+                if self.tf[word] < 10:
+                    delList.append(word)
+                self.tf[word] /= Total
+            for word in delList:
+                self.tf.pop(word)
+            return self.tf
 
     #Return an apperance distribution of a name.
     def time_density(self, name):
@@ -88,7 +97,7 @@ class Novel():
             #Get a delete list to delete those names with low frenquency:
             delList = []
             for name in self.nameSet:
-                if self.nameSet[name] < 10:
+                if self.nameSet[name] < 20:
                     delList.append(name)
                 elif re.match(r'(The [A-Z][a-z]+)|(.*God)', name) is not None:
                     delList.append(name)
@@ -140,3 +149,6 @@ class Novel():
 # print(war_peace.statics())
 # print(war_peace.relational_matrix())
 # print(war_peace.close_novel())
+# Novel("test.txt").term_frenquency()
+#
+# Novel("war_peace.txt").term_frenquency()
