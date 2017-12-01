@@ -3,6 +3,13 @@
 Novels.py provides a class Novel with many useful methods.(including the SNA in novels)
 Analysis.py mainly provide method to calculate the td-idf of words in each novel.
 
+run analysis.py with python3
+
+check war_peace_term_frequency.json 
+
+or 
+
+Here are several api in the code.
 
 ```
 import Novels
